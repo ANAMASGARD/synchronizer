@@ -27,13 +27,9 @@ import (
 
 var (
 	deploy = &appsv1.Deployment{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "apps/v1",
-			Kind:       "Deployment",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "test",
-		},
+		APIVersion: "apps/v1",
+		Kind:       "Deployment",
+		Name:       "test",
 		Spec: appsv1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{"app": "test"},
@@ -94,7 +90,7 @@ func TestClient_watchRetry(t *testing.T) {
 			},
 			args: args{
 				eventQueue: utils.NewCooldownQueue(),
-				watchOpts:  metav1.ListOptions{TimeoutSeconds: ptr.To(int64(1))},
+				watchOpts:  metav1.ListOptions{TimeoutSeconds: new(int64(1))},
 			},
 		},
 	}
@@ -185,10 +181,8 @@ func TestClient_filterAndMarshal(t *testing.T) {
 				kind: domain.KindFromString(context.TODO(), "spdx.softwarecomposition.kubescape.io/v1beta1/networkneighborhoods"),
 			},
 			obj: &v1beta1.NetworkNeighborhood{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test",
-					Namespace: "default",
-				},
+				Name:      "test",
+				Namespace: "default",
 				Spec: v1beta1.NetworkNeighborhoodSpec{
 					LabelSelector: metav1.LabelSelector{
 						MatchLabels: map[string]string{"app": "test"},
@@ -254,41 +248,41 @@ func TestClient_isFiltered(t *testing.T) {
 		},
 		{
 			name: "pod",
-			workload: &unstructured.Unstructured{Object: map[string]interface{}{
+			workload: &unstructured.Unstructured{Object: map[string]any{
 				"kind":     "Pod",
-				"metadata": map[string]interface{}{"namespace": "default"}}},
+				"metadata": map[string]any{"namespace": "default"}}},
 			filtered: false,
 		},
 		{
 			name: "pod with ownerReferences",
-			workload: &unstructured.Unstructured{Object: map[string]interface{}{
+			workload: &unstructured.Unstructured{Object: map[string]any{
 				"kind": "Pod",
-				"metadata": map[string]interface{}{
-					"ownerReferences": []interface{}{map[string]interface{}{
+				"metadata": map[string]any{
+					"ownerReferences": []any{map[string]any{
 						"apiVersion": "batch/v1"}}}}},
 			filtered: true,
 		},
 		{
 			name: "pod with pod-template-hash",
-			workload: &unstructured.Unstructured{Object: map[string]interface{}{
+			workload: &unstructured.Unstructured{Object: map[string]any{
 				"kind": "Pod",
-				"metadata": map[string]interface{}{
-					"labels": map[string]interface{}{
+				"metadata": map[string]any{
+					"labels": map[string]any{
 						"pod-template-hash": "12345"}}}},
 			filtered: true,
 		},
 		{
 			name: "pod from kubescape namespace", // special case, never filter out
-			workload: &unstructured.Unstructured{Object: map[string]interface{}{
+			workload: &unstructured.Unstructured{Object: map[string]any{
 				"kind":     "Pod",
-				"metadata": map[string]interface{}{"namespace": "default"}}},
+				"metadata": map[string]any{"namespace": "default"}}},
 			filtered: false,
 		},
 		{
 			name: "pod from filtered namespace",
-			workload: &unstructured.Unstructured{Object: map[string]interface{}{
+			workload: &unstructured.Unstructured{Object: map[string]any{
 				"kind":     "Pod",
-				"metadata": map[string]interface{}{"namespace": "kube-system"}}},
+				"metadata": map[string]any{"namespace": "kube-system"}}},
 			filtered: true,
 		},
 	}
@@ -306,28 +300,24 @@ func TestClient_isFiltered(t *testing.T) {
 
 func Test_mergeMetadata(t *testing.T) {
 	existingDeploy := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        "test",
-			Namespace:   "default",
-			Labels:      map[string]string{"app": "test"},
-			Annotations: map[string]string{"deployment.kubernetes.io/revision": "2"},
-		},
+		Name:        "test",
+		Namespace:   "default",
+		Labels:      map[string]string{"app": "test"},
+		Annotations: map[string]string{"deployment.kubernetes.io/revision": "2"},
 	}
 	newDeploy := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        "test",
-			Namespace:   "default",
-			Labels:      map[string]string{"app": "test"},
-			Annotations: map[string]string{"action-guid": "4e4f9032-d03f-459f-b280-17125c50f88b", "deployment.kubernetes.io/revision": "1"},
-		},
+		Name:        "test",
+		Namespace:   "default",
+		Labels:      map[string]string{"app": "test"},
+		Annotations: map[string]string{"action-guid": "4e4f9032-d03f-459f-b280-17125c50f88b", "deployment.kubernetes.io/revision": "1"},
 	}
 	existingUnstructured, err := runtime.DefaultUnstructuredConverter.ToUnstructured(existingDeploy)
 	require.NoError(t, err)
 	newUnstructured, err := runtime.DefaultUnstructuredConverter.ToUnstructured(newDeploy)
 	require.NoError(t, err)
 	type args struct {
-		existing map[string]interface{}
-		new      map[string]interface{}
+		existing map[string]any
+		new      map[string]any
 	}
 	tests := []struct {
 		name string
@@ -336,15 +326,15 @@ func Test_mergeMetadata(t *testing.T) {
 		{
 			name: "test merge metadata",
 			args: args{
-				existing: existingUnstructured["metadata"].(map[string]interface{}),
-				new:      newUnstructured["metadata"].(map[string]interface{}),
+				existing: existingUnstructured["metadata"].(map[string]any),
+				new:      newUnstructured["metadata"].(map[string]any),
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mergeMetadata(tt.args.existing, tt.args.new)
-			assert.EqualValues(t, map[string]interface{}{"action-guid": "4e4f9032-d03f-459f-b280-17125c50f88b", "deployment.kubernetes.io/revision": "2"}, tt.args.existing["annotations"])
+			assert.EqualValues(t, map[string]any{"action-guid": "4e4f9032-d03f-459f-b280-17125c50f88b", "deployment.kubernetes.io/revision": "2"}, tt.args.existing["annotations"])
 		})
 	}
 }

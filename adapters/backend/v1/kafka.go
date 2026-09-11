@@ -232,13 +232,7 @@ func kafkaRecordByteLimit(maxMessageBytes int) int32 {
 // kafkaBrokerByteLimit returns the BrokerMax{Write,Read}Bytes value, raised so the
 // broker limit never sits below the configured per-message limit.
 func kafkaBrokerByteLimit(maxMessageBytes int) int32 {
-	limit := maxMessageBytes
-	if limit < kafkaDefaultBrokerBytes {
-		limit = kafkaDefaultBrokerBytes
-	}
-	if limit > kafkaMaxBrokerBytes {
-		limit = kafkaMaxBrokerBytes
-	}
+	limit := min(max(maxMessageBytes, kafkaDefaultBrokerBytes), kafkaMaxBrokerBytes)
 	return int32(limit)
 }
 

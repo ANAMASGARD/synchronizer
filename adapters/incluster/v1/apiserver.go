@@ -112,11 +112,11 @@ func parseAzureResourceGroup(providerID string) string {
 		return ""
 	}
 	rest := providerID[idx+len(azureResourceGroupMarker):]
-	end := strings.Index(rest, "/")
-	if end == -1 {
+	before, _, ok := strings.Cut(rest, "/")
+	if !ok {
 		return rest
 	}
-	return rest[:end]
+	return before
 }
 
 func getApiServerGitVersion(k8sApi *k8sinterface.KubernetesApi) (string, error) {

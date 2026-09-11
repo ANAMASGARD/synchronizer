@@ -26,7 +26,7 @@ type Client struct {
 	callbacks          domain.Callbacks
 	messageProducer    messaging.MessageProducer
 	skipAlertsFrom     []string
-	featuresProvider  *FeaturesProvider
+	featuresProvider   *FeaturesProvider
 	maxObjectSizeBytes *int
 }
 
@@ -34,7 +34,7 @@ func NewClient(producer messaging.MessageProducer, skipAlertsFrom []string, feat
 	return &Client{
 		messageProducer:    producer,
 		skipAlertsFrom:     skipAlertsFrom,
-		featuresProvider:  featuresProvider,
+		featuresProvider:   featuresProvider,
 		maxObjectSizeBytes: getMaxObjectSizeBytes(),
 	}
 }

@@ -7,5 +7,5 @@ type BatchItems struct {
 	ObjectDeleted        []ObjectDeleted
 	GetObject            []GetObject
 	PatchObject          []PatchObject
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties map[string]any
 }

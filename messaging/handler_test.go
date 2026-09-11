@@ -333,12 +333,10 @@ func TestMessageHandler_ReconciliationMutexSerializes(t *testing.T) {
 	}
 
 	var wg sync.WaitGroup
-	for i := 0; i < 5; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for range 5 {
+		wg.Go(func() {
 			require.NoError(t, handler.Handle(context.Background(), adapter, msg))
-		}()
+		})
 	}
 	wg.Wait()
 

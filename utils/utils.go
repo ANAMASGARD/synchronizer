@@ -75,8 +75,8 @@ func DeptMsgIdFromContext(ctx context.Context) (int, string) {
 
 //goland:noinspection GoUnusedExportedFunction
 func CompareJson(a, b []byte) bool {
-	var aData interface{}
-	var bData interface{}
+	var aData any
+	var bData any
 	err := json.Unmarshal(a, &aData)
 	if err != nil {
 		logger.L().Error("cannot unmarshal a", helpers.Error(err))
@@ -94,7 +94,7 @@ func CompareJson(a, b []byte) bool {
 	return equal
 }
 
-func diff(expected interface{}, actual interface{}) string {
+func diff(expected any, actual any) string {
 	if expected == nil || actual == nil {
 		return ""
 	}
@@ -113,10 +113,10 @@ func diff(expected interface{}, actual interface{}) string {
 	var e, a string
 
 	switch et {
-	case reflect.TypeOf(""):
+	case reflect.TypeFor[string]():
 		e = reflect.ValueOf(expected).String()
 		a = reflect.ValueOf(actual).String()
-	case reflect.TypeOf(time.Time{}):
+	case reflect.TypeFor[time.Time]():
 		e = spewConfigStringerEnabled.Sdump(expected)
 		a = spewConfigStringerEnabled.Sdump(actual)
 	default:
@@ -154,11 +154,11 @@ var spewConfigStringerEnabled = spew.ConfigState{
 	MaxDepth:                10,
 }
 
-func typeAndKind(v interface{}) (reflect.Type, reflect.Kind) {
+func typeAndKind(v any) (reflect.Type, reflect.Kind) {
 	t := reflect.TypeOf(v)
 	k := t.Kind()
 
-	if k == reflect.Ptr {
+	if k == reflect.Pointer {
 		t = t.Elem()
 		k = t.Kind()
 	}
@@ -295,9 +295,9 @@ func MaskEnvironmentVariables(un *unstructured.Unstructured) error {
 	}
 
 	// maskContainers is a helper to iterate over a list of containers and mask their env vars
-	maskContainers := func(containers []interface{}) error {
+	maskContainers := func(containers []any) error {
 		for i := range containers {
-			container, ok := containers[i].(map[string]interface{})
+			container, ok := containers[i].(map[string]any)
 			if !ok {
 				continue
 			}
@@ -308,7 +308,7 @@ func MaskEnvironmentVariables(un *unstructured.Unstructured) error {
 			}
 
 			for j := range env {
-				envVar, ok := env[j].(map[string]interface{})
+				envVar, ok := env[j].(map[string]any)
 				if !ok {
 					continue
 				}

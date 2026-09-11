@@ -5,5 +5,5 @@ type Kind struct {
 	Group                string
 	Version              string
 	Resource             string
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties map[string]any
 }

@@ -460,7 +460,7 @@ func (c *Client) PutObject(ctx context.Context, id domain.KindName, checksum str
 				return getErr
 			}
 			// update the metadata
-			mergeMetadata(result.Object["metadata"].(map[string]interface{}), obj.Object["metadata"].(map[string]interface{}))
+			mergeMetadata(result.Object["metadata"].(map[string]any), obj.Object["metadata"].(map[string]any))
 			if err := unstructured.SetNestedField(obj.Object, result.Object["metadata"], "metadata"); err != nil {
 				return fmt.Errorf("set nested field: %w", err)
 			}
@@ -479,11 +479,11 @@ func (c *Client) PutObject(ctx context.Context, id domain.KindName, checksum str
 	return nil
 }
 
-func mergeMetadata(existing, new map[string]interface{}) {
+func mergeMetadata(existing, new map[string]any) {
 	// merge annotations and labels
 	for _, field := range []string{"annotations", "labels"} {
-		if existingValues, ok := existing[field].(map[string]interface{}); ok {
-			if newValues, ok := new[field].(map[string]interface{}); ok {
+		if existingValues, ok := existing[field].(map[string]any); ok {
+			if newValues, ok := new[field].(map[string]any); ok {
 				for k, v := range newValues {
 					// don't override existing values
 					if _, ok := existingValues[k]; ok {

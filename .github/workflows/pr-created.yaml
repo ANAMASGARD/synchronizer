@@ -21,7 +21,7 @@ jobs:
   pr-created:
     uses: kubescape/workflows/.github/workflows/incluster-comp-pr-created.yaml@main
     with:
-      GO_VERSION: "1.25.8"
+      GO_VERSION: "1.27"
       CGO_ENABLED: 0
     secrets: inherit
 
