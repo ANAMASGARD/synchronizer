@@ -8,5 +8,5 @@ type Batch struct {
 	Kind                 *Kind
 	BatchType            string
 	Items                *BatchItems
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties map[string]any
 }

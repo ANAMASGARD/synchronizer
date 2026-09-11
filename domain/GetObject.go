@@ -10,5 +10,5 @@ type GetObject struct {
 	MsgId                string
 	Name                 string
 	Namespace            string
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties map[string]any
 }

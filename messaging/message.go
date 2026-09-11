@@ -1,5 +1,7 @@
 package messaging
 
+import "maps"
+
 import "time"
 
 // IncomingMessage is a backend-neutral representation of a message consumed by the synchronizer server.
@@ -17,9 +19,7 @@ func BuildProducerProperties(account, cluster, eventType string, optionalPropert
 		MsgPropProducerSource: MsgPropProducerSourceSynchronizerServer,
 	}
 	for _, optionalProperty := range optionalProperties {
-		for k, v := range optionalProperty {
-			producerMessageProperties[k] = v
-		}
+		maps.Copy(producerMessageProperties, optionalProperty)
 	}
 
 	if account != "" {

@@ -104,34 +104,34 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 		{
 			name: "Deployment with env vars in main and init containers",
 			input: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "apps/v1",
 					"kind":       "Deployment",
-					"spec": map[string]interface{}{
-						"template": map[string]interface{}{
-							"spec": map[string]interface{}{
-								"containers": []interface{}{
-									map[string]interface{}{
+					"spec": map[string]any{
+						"template": map[string]any{
+							"spec": map[string]any{
+								"containers": []any{
+									map[string]any{
 										"name": "main-container",
-										"env": []interface{}{
-											map[string]interface{}{
+										"env": []any{
+											map[string]any{
 												"name":  "SECRET_KEY",
 												"value": "supersecretvalue",
 											},
-											map[string]interface{}{
+											map[string]any{
 												"name": "FROM_SECRET",
-												"valueFrom": map[string]interface{}{
-													"secretKeyRef": map[string]interface{}{"name": "mysecret", "key": "password"},
+												"valueFrom": map[string]any{
+													"secretKeyRef": map[string]any{"name": "mysecret", "key": "password"},
 												},
 											},
 										},
 									},
 								},
-								"initContainers": []interface{}{
-									map[string]interface{}{
+								"initContainers": []any{
+									map[string]any{
 										"name": "init-container",
-										"env": []interface{}{
-											map[string]interface{}{
+										"env": []any{
+											map[string]any{
 												"name":  "INIT_SECRET",
 												"value": "initsecret",
 											},
@@ -144,34 +144,34 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 				},
 			},
 			expected: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "apps/v1",
 					"kind":       "Deployment",
-					"spec": map[string]interface{}{
-						"template": map[string]interface{}{
-							"spec": map[string]interface{}{
-								"containers": []interface{}{
-									map[string]interface{}{
+					"spec": map[string]any{
+						"template": map[string]any{
+							"spec": map[string]any{
+								"containers": []any{
+									map[string]any{
 										"name": "main-container",
-										"env": []interface{}{
-											map[string]interface{}{
+										"env": []any{
+											map[string]any{
 												"name":  "SECRET_KEY",
 												"value": maskedValue, // Should be masked
 											},
-											map[string]interface{}{
+											map[string]any{
 												"name": "FROM_SECRET",
-												"valueFrom": map[string]interface{}{ // Should NOT be masked
-													"secretKeyRef": map[string]interface{}{"name": "mysecret", "key": "password"},
+												"valueFrom": map[string]any{ // Should NOT be masked
+													"secretKeyRef": map[string]any{"name": "mysecret", "key": "password"},
 												},
 											},
 										},
 									},
 								},
-								"initContainers": []interface{}{
-									map[string]interface{}{
+								"initContainers": []any{
+									map[string]any{
 										"name": "init-container",
-										"env": []interface{}{
-											map[string]interface{}{
+										"env": []any{
+											map[string]any{
 												"name":  "INIT_SECRET",
 												"value": maskedValue, // Should be masked
 											},
@@ -187,19 +187,19 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 		{
 			name: "CronJob with env vars",
 			input: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "batch/v1",
 					"kind":       "CronJob",
-					"spec": map[string]interface{}{
-						"jobTemplate": map[string]interface{}{
-							"spec": map[string]interface{}{
-								"template": map[string]interface{}{
-									"spec": map[string]interface{}{
-										"containers": []interface{}{
-											map[string]interface{}{
+					"spec": map[string]any{
+						"jobTemplate": map[string]any{
+							"spec": map[string]any{
+								"template": map[string]any{
+									"spec": map[string]any{
+										"containers": []any{
+											map[string]any{
 												"name": "cron-container",
-												"env": []interface{}{
-													map[string]interface{}{
+												"env": []any{
+													map[string]any{
 														"name":  "CRON_SECRET",
 														"value": "cronsecretvalue",
 													},
@@ -214,19 +214,19 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 				},
 			},
 			expected: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "batch/v1",
 					"kind":       "CronJob",
-					"spec": map[string]interface{}{
-						"jobTemplate": map[string]interface{}{
-							"spec": map[string]interface{}{
-								"template": map[string]interface{}{
-									"spec": map[string]interface{}{
-										"containers": []interface{}{
-											map[string]interface{}{
+					"spec": map[string]any{
+						"jobTemplate": map[string]any{
+							"spec": map[string]any{
+								"template": map[string]any{
+									"spec": map[string]any{
+										"containers": []any{
+											map[string]any{
 												"name": "cron-container",
-												"env": []interface{}{
-													map[string]interface{}{
+												"env": []any{
+													map[string]any{
 														"name":  "CRON_SECRET",
 														"value": maskedValue, // Should be masked
 													},
@@ -244,20 +244,20 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 		{
 			name: "Pod with ephemeral container",
 			input: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "v1",
 					"kind":       "Pod",
-					"spec": map[string]interface{}{
-						"containers": []interface{}{
-							map[string]interface{}{
+					"spec": map[string]any{
+						"containers": []any{
+							map[string]any{
 								"name": "main-container",
 							},
 						},
-						"ephemeralContainers": []interface{}{
-							map[string]interface{}{
+						"ephemeralContainers": []any{
+							map[string]any{
 								"name": "debugger",
-								"env": []interface{}{
-									map[string]interface{}{
+								"env": []any{
+									map[string]any{
 										"name":  "DEBUG_KEY",
 										"value": "debug-value",
 									},
@@ -268,20 +268,20 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 				},
 			},
 			expected: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "v1",
 					"kind":       "Pod",
-					"spec": map[string]interface{}{
-						"containers": []interface{}{
-							map[string]interface{}{
+					"spec": map[string]any{
+						"containers": []any{
+							map[string]any{
 								"name": "main-container",
 							},
 						},
-						"ephemeralContainers": []interface{}{
-							map[string]interface{}{
+						"ephemeralContainers": []any{
+							map[string]any{
 								"name": "debugger",
-								"env": []interface{}{
-									map[string]interface{}{
+								"env": []any{
+									map[string]any{
 										"name":  "DEBUG_KEY",
 										"value": maskedValue,
 									},
@@ -295,22 +295,22 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 		{
 			name: "Resource without pod spec (Service)",
 			input: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "v1",
 					"kind":       "Service",
-					"spec": map[string]interface{}{
-						"selector": map[string]interface{}{
+					"spec": map[string]any{
+						"selector": map[string]any{
 							"app": "MyApp",
 						},
 					},
 				},
 			},
 			expected: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "v1",
 					"kind":       "Service",
-					"spec": map[string]interface{}{
-						"selector": map[string]interface{}{
+					"spec": map[string]any{
+						"selector": map[string]any{
 							"app": "MyApp",
 						},
 					},
@@ -320,18 +320,18 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 		{
 			name: "Deployment with malformed env entry",
 			input: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "apps/v1",
 					"kind":       "Deployment",
-					"spec": map[string]interface{}{
-						"template": map[string]interface{}{
-							"spec": map[string]interface{}{
-								"containers": []interface{}{
-									map[string]interface{}{
+					"spec": map[string]any{
+						"template": map[string]any{
+							"spec": map[string]any{
+								"containers": []any{
+									map[string]any{
 										"name": "main-container",
-										"env": []interface{}{
+										"env": []any{
 											"this-is-not-a-map", // Malformed entry
-											map[string]interface{}{
+											map[string]any{
 												"name":  "GOOD_KEY",
 												"value": "good-value",
 											},
@@ -344,18 +344,18 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 				},
 			},
 			expected: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "apps/v1",
 					"kind":       "Deployment",
-					"spec": map[string]interface{}{
-						"template": map[string]interface{}{
-							"spec": map[string]interface{}{
-								"containers": []interface{}{
-									map[string]interface{}{
+					"spec": map[string]any{
+						"template": map[string]any{
+							"spec": map[string]any{
+								"containers": []any{
+									map[string]any{
 										"name": "main-container",
-										"env": []interface{}{
+										"env": []any{
 											"this-is-not-a-map", // Should be unchanged
-											map[string]interface{}{
+											map[string]any{
 												"name":  "GOOD_KEY",
 												"value": maskedValue, // Should be masked
 											},
@@ -371,12 +371,12 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 		{
 			name: "Pod with no env vars",
 			input: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "v1",
 					"kind":       "Pod",
-					"spec": map[string]interface{}{
-						"containers": []interface{}{
-							map[string]interface{}{
+					"spec": map[string]any{
+						"containers": []any{
+							map[string]any{
 								"name": "no-env-container",
 							},
 						},
@@ -384,12 +384,12 @@ func TestMaskEnvironmentVariables(t *testing.T) {
 				},
 			},
 			expected: &unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"apiVersion": "v1",
 					"kind":       "Pod",
-					"spec": map[string]interface{}{
-						"containers": []interface{}{
-							map[string]interface{}{
+					"spec": map[string]any{
+						"containers": []any{
+							map[string]any{
 								"name": "no-env-container",
 							},
 						},

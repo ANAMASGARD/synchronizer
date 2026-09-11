@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	configmap       = unstructured.Unstructured{Object: map[string]interface{}{"kind": "ConfigMap", "metadata": map[string]interface{}{"uid": "748ad4a8-e5ff-44da-ba94-309992c97820"}}}
-	deployment      = unstructured.Unstructured{Object: map[string]interface{}{"kind": "Deployment", "metadata": map[string]interface{}{"uid": "6b1a0c50-277f-4aa1-a4f9-9fc278ce4fe2"}}}
-	pod             = unstructured.Unstructured{Object: map[string]interface{}{"kind": "Pod", "metadata": map[string]interface{}{"uid": "aa5e3e8f-2da5-4c38-93c0-210d3280d10f"}}}
+	configmap       = unstructured.Unstructured{Object: map[string]any{"kind": "ConfigMap", "metadata": map[string]any{"uid": "748ad4a8-e5ff-44da-ba94-309992c97820"}}}
+	deployment      = unstructured.Unstructured{Object: map[string]any{"kind": "Deployment", "metadata": map[string]any{"uid": "6b1a0c50-277f-4aa1-a4f9-9fc278ce4fe2"}}}
+	pod             = unstructured.Unstructured{Object: map[string]any{"kind": "Pod", "metadata": map[string]any{"uid": "aa5e3e8f-2da5-4c38-93c0-210d3280d10f"}}}
 	deploymentAdded = watch.Event{Type: watch.Added, Object: &deployment}
 	podAdded        = watch.Event{Type: watch.Added, Object: &pod}
 	podModified     = watch.Event{Type: watch.Modified, Object: &pod}

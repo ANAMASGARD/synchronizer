@@ -11,5 +11,5 @@ type PatchObject struct {
 	Name                 string
 	Namespace            string
 	Patch                string
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties map[string]any
 }

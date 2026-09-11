@@ -32,18 +32,16 @@ func startPulsarContainer(t *testing.T, ctx context.Context) (testcontainers.Con
 	t.Helper()
 
 	pulsarC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: testcontainers.ContainerRequest{
-			Image:        "apachepulsar/pulsar:3.0.3",
-			Cmd:          []string{"bin/pulsar", "standalone"},
-			ExposedPorts: []string{"6650/tcp", "8080/tcp"},
-			WaitingFor: wait.ForAll(
-				wait.ForExposedPort(),
-				wait.ForHTTP("/admin/v2/clusters").WithPort("8080/tcp").WithResponseMatcher(func(r io.Reader) bool {
-					respBytes, _ := io.ReadAll(r)
-					return strings.Contains(string(respBytes), `["standalone"]`)
-				}),
-			),
-		},
+		Image:        "apachepulsar/pulsar:3.0.3",
+		Cmd:          []string{"bin/pulsar", "standalone"},
+		ExposedPorts: []string{"6650/tcp", "8080/tcp"},
+		WaitingFor: wait.ForAll(
+			wait.ForExposedPort(),
+			wait.ForHTTP("/admin/v2/clusters").WithPort("8080/tcp").WithResponseMatcher(func(r io.Reader) bool {
+				respBytes, _ := io.ReadAll(r)
+				return strings.Contains(string(respBytes), `["standalone"]`)
+			}),
+		),
 		Started: true,
 	})
 	require.NoError(t, err)

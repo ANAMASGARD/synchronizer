@@ -6,5 +6,5 @@ type Generic struct {
 	Event                *Event
 	Kind                 *Kind
 	MsgId                string
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties map[string]any
 }

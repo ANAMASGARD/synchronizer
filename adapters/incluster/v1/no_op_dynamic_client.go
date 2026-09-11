@@ -51,16 +51,16 @@ func (n *NoOpDynamicResource) DeleteCollection(_ context.Context, _ metav1.Delet
 	return nil
 }
 func (n *NoOpDynamicResource) Get(_ context.Context, _ string, _ metav1.GetOptions, _ ...string) (*unstructured.Unstructured, error) {
-	return &unstructured.Unstructured{Object: map[string]interface{}{}}, nil
+	return &unstructured.Unstructured{Object: map[string]any{}}, nil
 }
 func (n *NoOpDynamicResource) List(_ context.Context, _ metav1.ListOptions) (*unstructured.UnstructuredList, error) {
-	return &unstructured.UnstructuredList{Object: map[string]interface{}{}, Items: []unstructured.Unstructured{{Object: map[string]interface{}{}}}}, nil
+	return &unstructured.UnstructuredList{Object: map[string]any{}, Items: []unstructured.Unstructured{{Object: map[string]any{}}}}, nil
 }
 func (n *NoOpDynamicResource) Watch(_ context.Context, _ metav1.ListOptions) (watch.Interface, error) {
 	return &NoOpWatch{eventChan: make(chan watch.Event)}, nil
 }
 func (n *NoOpDynamicResource) Patch(_ context.Context, _ string, _ types.PatchType, _ []byte, _ metav1.PatchOptions, _ ...string) (*unstructured.Unstructured, error) {
-	return &unstructured.Unstructured{Object: map[string]interface{}{}}, nil
+	return &unstructured.Unstructured{Object: map[string]any{}}, nil
 }
 func (n *NoOpDynamicResource) Apply(_ context.Context, _ string, obj *unstructured.Unstructured, _ metav1.ApplyOptions, _ ...string) (*unstructured.Unstructured, error) {
 	return obj, nil

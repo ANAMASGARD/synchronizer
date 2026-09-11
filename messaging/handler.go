@@ -79,8 +79,8 @@ func (h *MessageHandler) Handle(ctx context.Context, adapter adapters.Adapter, m
 				continue
 			}
 
-			items := domain.BatchItems{}
-			items.NewChecksum = make([]domain.NewChecksum, 0, len(objects))
+			items := domain.BatchItems{
+				NewChecksum: make([]domain.NewChecksum, 0, len(objects))}
 
 			for _, object := range objects {
 				items.NewChecksum = append(items.NewChecksum, domain.NewChecksum{

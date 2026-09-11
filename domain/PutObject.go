@@ -11,5 +11,5 @@ type PutObject struct {
 	Name                 string
 	Namespace            string
 	Object               string
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties map[string]any
 }

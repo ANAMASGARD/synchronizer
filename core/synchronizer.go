@@ -57,7 +57,7 @@ func newSynchronizer(mainCtx context.Context, adapter []adapters.Adapter, conn n
 	}
 	// outgoing message pool
 	var err error
-	s.outPool, err = ants.NewPoolWithFunc(1, func(i interface{}) {
+	s.outPool, err = ants.NewPoolWithFunc(1, func(i any) {
 		data := i.([]byte)
 		s.sendData(mainCtx, data)
 	})
@@ -232,7 +232,7 @@ func (s *Synchronizer) listenForSyncEvents(ctx context.Context) error {
 	var err error
 	clientId := utils.ClientIdentifierFromContext(ctx)
 	// incoming message pool
-	s.inPool, err = ants.NewPoolWithFunc(1, func(i interface{}) {
+	s.inPool, err = ants.NewPoolWithFunc(1, func(i any) {
 		data, ok := i.([]byte)
 		if !ok {
 			logger.L().Ctx(ctx).Error("failed to convert message to bytes", helpers.Interface("message", i))

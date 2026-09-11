@@ -15,7 +15,6 @@ import (
 	"github.com/kubescape/synchronizer/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/utils/ptr"
 )
 
 func TestLoadClusterConfig(t *testing.T) {
@@ -34,13 +33,13 @@ func TestLoadClusterConfig(t *testing.T) {
 				KubevulnURL:         "kubevuln:8080",
 				KubescapeURL:        "kubescape:8080",
 				InstallationData: armotypes.InstallationData{
-					StorageEnabled:                            ptr.To[bool](true),
-					RelevantImageVulnerabilitiesEnabled:       ptr.To[bool](false),
+					StorageEnabled:                            new(true),
+					RelevantImageVulnerabilitiesEnabled:       new(false),
 					RelevantImageVulnerabilitiesConfiguration: "disable",
 					Namespace:                           "kubescape",
-					ImageVulnerabilitiesScanningEnabled: ptr.To[bool](false),
-					PostureScanEnabled:                  ptr.To[bool](false),
-					OtelCollectorEnabled:                ptr.To[bool](true),
+					ImageVulnerabilitiesScanningEnabled: new(false),
+					PostureScanEnabled:                  new(false),
+					OtelCollectorEnabled:                new(true),
 				},
 			},
 		},
@@ -127,7 +126,7 @@ func TestLoadConfig(t *testing.T) {
 func TestLoadServiceURLs(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]any{
 			"version": "v3",
 			"response": map[string]string{
 				"event-receiver-http": "https://er-test.com",
