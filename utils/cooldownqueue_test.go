@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"runtime"
 	"sort"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -10,6 +12,58 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/watch"
 )
+
+// The cache wrapper's finalizer must be able to stop its eviction goroutine.
+// A callback that retains the queue also retains that wrapper, preventing GC.
+func TestCooldownQueue_DiscardReleasesEvicter(t *testing.T) {
+	evicters := func() map[string]bool {
+		buf := make([]byte, 1<<20)
+		n := runtime.Stack(buf, true)
+		if n == len(buf) {
+			t.Fatal("goroutine stack buffer too small")
+		}
+		ids := make(map[string]bool)
+		for _, stack := range strings.Split(string(buf[:n]), "\n\n") {
+			if strings.Contains(stack, "istio.io/pkg/cache.(*ttlCache).evicter(") {
+				ids[strings.Fields(stack)[1]] = true
+			}
+		}
+		return ids
+	}
+	for _, stopped := range []bool{false, true} {
+		name := "discarded"
+		if stopped {
+			name = "stopped"
+		}
+		t.Run(name, func(t *testing.T) {
+			before := evicters()
+			q := NewCooldownQueue()
+			if stopped {
+				q.Enqueue(podAdded)
+				q.Stop()
+			}
+			var created map[string]bool
+			assert.Eventually(t, func() bool {
+				created = evicters()
+				for id := range before {
+					delete(created, id)
+				}
+				return len(created) > 0
+			}, time.Second, time.Millisecond)
+			runtime.KeepAlive(q)
+			q = nil
+			assert.Eventually(t, func() bool {
+				runtime.GC()
+				for id := range evicters() {
+					if created[id] {
+						return false
+					}
+				}
+				return true
+			}, 5*time.Second, 10*time.Millisecond, "discarded queue retained its cache eviction goroutine")
+		})
+	}
+}
 
 var (
 	configmap       = unstructured.Unstructured{Object: map[string]any{"kind": "ConfigMap", "metadata": map[string]any{"uid": "748ad4a8-e5ff-44da-ba94-309992c97820"}}}
