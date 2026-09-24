@@ -2,6 +2,7 @@ package utils
 
 import (
 	"sort"
+	"sync"
 	"testing"
 	"time"
 
@@ -109,4 +110,31 @@ func Test_makeEventKey(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func TestCooldownQueue_ConcurrentStopAndEnqueue(t *testing.T) {
+	q := NewCooldownQueue()
+	var wg sync.WaitGroup
+	for range 10 {
+		wg.Go(func() { q.Enqueue(podAdded); q.Stop(); assert.True(t, q.Closed()) })
+	}
+	wg.Wait()
+	_, open := <-q.ResultChan
+	assert.False(t, open)
+}
+
+func TestCooldownQueue_StopUnblocksEviction(t *testing.T) {
+	q := NewCooldownQueue()
+	q.Enqueue(podAdded)
+	// Leave ResultChan unread until an eviction is blocked trying to send.
+	time.Sleep(defaultExpiration + 2*evictionInterval)
+	stopped := make(chan struct{})
+	go func() { q.Stop(); close(stopped) }()
+	select {
+	case <-stopped:
+	case <-time.After(time.Second):
+		t.Fatal("Stop blocked on an eviction without a consumer")
+	}
+	_, open := <-q.ResultChan
+	assert.False(t, open)
 }
